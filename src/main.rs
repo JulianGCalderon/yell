@@ -1,3 +1,4 @@
+mod result;
 mod window;
 
 use dotenv::dotenv;

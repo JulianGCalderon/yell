@@ -4,6 +4,7 @@ use glib::subclass::InitializingObject;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate, Entry};
 use gtk::{Button, ListView, StringList};
+use reqwest::blocking::Client;
 
 // Object holding the state
 #[derive(CompositeTemplate, Default)]
@@ -18,6 +19,7 @@ pub struct Window {
     #[template_child]
     pub results_list: TemplateChild<ListView>,
     pub results: RefCell<Option<StringList>>,
+    pub client: RefCell<Option<Client>>,
 }
 
 #[glib::object_subclass]
@@ -42,6 +44,7 @@ impl ObjectImpl for Window {
         let obj = self.obj();
         obj.setup_callbacks();
         obj.setup_results();
+        obj.setup_client();
         obj.setup_factory();
     }
 }

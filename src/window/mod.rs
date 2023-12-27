@@ -1,9 +1,12 @@
 mod imp;
 
+use std::error::Error;
+
 use glib::{clone, Object};
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, Application, BuilderListItemFactory, BuilderScope, SingleSelection};
 use gtk::{prelude::*, StringList};
+use reqwest::blocking::Client;
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
@@ -44,7 +47,23 @@ impl Window {
             return;
         }
 
-        unimplemented!("Querying {}", query);
+        if let Err(err) = self.send_query(query) {
+            eprintln!("Could not query youtube, with error: {:?}", err);
+        }
+    }
+
+    fn send_query(&self, query: String) -> Result<(), Box<dyn Error>> {
+        let key = dotenv::var("API_KEY").expect("Could not get API key from env. variable");
+
+        let _response = self
+            .client()
+            .get("https://www.googleapis.com/youtube/v3/search")
+            .query(&[("part", "snippet"), ("key", &key), ("q", &query)])
+            .header("key", key)
+            .send()?
+            .text()?;
+
+        todo!();
     }
 
     fn download_selected(&self) {
@@ -94,5 +113,17 @@ impl Window {
         );
 
         self.imp().results_list.set_factory(Some(&factory));
+    }
+
+    fn setup_client(&self) {
+        self.imp().client.replace(Some(Client::new()));
+    }
+
+    fn client(&self) -> Client {
+        self.imp()
+            .client
+            .borrow()
+            .clone()
+            .expect("Could not get client")
     }
 }

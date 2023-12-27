@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+dotenv = "0.15.0"
 gtk = { version = "0.7.3", package = "gtk4", features = ["v4_6"] }
 
 [build-dependencies]

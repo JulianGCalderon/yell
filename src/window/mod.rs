@@ -2,9 +2,7 @@ mod imp;
 
 use glib::{clone, Object};
 use gtk::subclass::prelude::*;
-use gtk::{
-    gio, glib, Application, BuilderListItemFactory, BuilderScope, NoSelection, SingleSelection,
-};
+use gtk::{gio, glib, Application, BuilderListItemFactory, BuilderScope, SingleSelection};
 use gtk::{prelude::*, StringList};
 
 glib::wrapper! {
@@ -23,6 +21,12 @@ impl Window {
         self.imp()
             .search_button
             .connect_clicked(clone!(@weak self as window => move |_| {
+                window.query_videos();
+            }));
+
+        self.imp()
+            .search_entry
+            .connect_activate(clone!(@weak self as window => move |_| {
                 window.query_videos();
             }));
 

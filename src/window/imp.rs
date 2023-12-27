@@ -2,8 +2,8 @@ use std::cell::RefCell;
 
 use glib::subclass::InitializingObject;
 use gtk::subclass::prelude::*;
-use gtk::{gio, prelude::*, Button, ListView, StringList};
 use gtk::{glib, CompositeTemplate, Entry};
+use gtk::{Button, ListView, StringList};
 
 // Object holding the state
 #[derive(CompositeTemplate, Default)]

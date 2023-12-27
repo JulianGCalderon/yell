@@ -1,14 +1,23 @@
+use std::cell::RefCell;
+
 use glib::subclass::InitializingObject;
-use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use gtk::{glib, Button, CompositeTemplate};
+use gtk::{gio, prelude::*, Button, ListView};
+use gtk::{glib, CompositeTemplate, Entry};
 
 // Object holding the state
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/juliangcalderon/youtube-downloader/ui/window.ui/")]
 pub struct Window {
     #[template_child]
-    pub button: TemplateChild<Button>,
+    pub search_entry: TemplateChild<Entry>,
+    #[template_child]
+    pub search_button: TemplateChild<Button>,
+    #[template_child]
+    pub download_button: TemplateChild<Button>,
+    #[template_child]
+    pub results_list: TemplateChild<ListView>,
+    pub results: RefCell<Option<gio::ListStore>>,
 }
 
 #[glib::object_subclass]
@@ -30,12 +39,11 @@ impl ObjectImpl for Window {
     fn constructed(&self) {
         self.parent_constructed();
 
-        self.button.connect_clicked(move |button| {
-            button.set_label("Hello World!");
-        });
+        let obj = self.obj();
+        obj.setup_callbacks();
     }
 }
 
 impl WidgetImpl for Window {}
-impl ApplicationWindowImpl for Window {}
 impl WindowImpl for Window {}
+impl ApplicationWindowImpl for Window {}

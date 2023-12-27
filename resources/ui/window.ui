@@ -37,7 +37,7 @@
         </child>
         <child>
           <object class="GtkButton" id="download_button">
-            <property name="label">Download!</property>
+            <property name="label">Download</property>
           </object>
         </child>
       </object>

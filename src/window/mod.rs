@@ -1,9 +1,11 @@
 mod imp;
 
 use glib::{clone, Object};
-use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use gtk::{gio, glib, Application};
+use gtk::{
+    gio, glib, Application, BuilderListItemFactory, BuilderScope, NoSelection, SingleSelection,
+};
+use gtk::{prelude::*, StringList};
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
@@ -21,13 +23,72 @@ impl Window {
         self.imp()
             .search_button
             .connect_clicked(clone!(@weak self as window => move |_| {
-                println!("Searching!")
+                window.query_videos();
             }));
 
         self.imp()
             .download_button
             .connect_clicked(clone!(@weak self as window => move |_| {
-                println!("Downloading!")
+                window.download_selected();
             }));
+    }
+
+    fn query_videos(&self) {
+        let buffer = self.imp().search_entry.buffer();
+        let query = buffer.text().to_string();
+        if query.is_empty() {
+            return;
+        }
+
+        unimplemented!("Querying {}", query);
+    }
+
+    fn download_selected(&self) {
+        let selection_model = self
+            .imp()
+            .results_list
+            .model()
+            .expect("Could not get selection model");
+
+        let selected_bitset = selection_model.selection();
+
+        if selected_bitset.is_empty() {
+            return;
+        }
+
+        let selected_index = selected_bitset.nth(0);
+
+        let selected = self
+            .results()
+            .string(selected_index)
+            .expect("Selected item should exist");
+
+        unimplemented!("Downloading {}", selected);
+    }
+
+    fn results(&self) -> StringList {
+        self.imp()
+            .results
+            .borrow()
+            .clone()
+            .expect("Could not get current tasks.")
+    }
+
+    fn setup_results(&self) {
+        let model = StringList::new(&[]);
+
+        self.imp().results.replace(Some(model));
+
+        let selection_model = SingleSelection::new(Some(self.results()));
+        self.imp().results_list.set_model(Some(&selection_model));
+    }
+
+    fn setup_factory(&self) {
+        let factory = BuilderListItemFactory::from_resource(
+            None::<&BuilderScope>,
+            "/juliangcalderon/youtube-downloader/ui/result.ui",
+        );
+
+        self.imp().results_list.set_factory(Some(&factory));
     }
 }

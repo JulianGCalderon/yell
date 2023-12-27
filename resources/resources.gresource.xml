@@ -2,5 +2,6 @@
 <gresources>
   <gresource prefix="/juliangcalderon/youtube-downloader/">
     <file compressed="true" preprocess="xml-stripblanks">ui/window.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/result.ui</file>
   </gresource>
 </gresources>

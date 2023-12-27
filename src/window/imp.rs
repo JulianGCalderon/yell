@@ -2,7 +2,7 @@ use std::cell::RefCell;
 
 use glib::subclass::InitializingObject;
 use gtk::subclass::prelude::*;
-use gtk::{gio, prelude::*, Button, ListView};
+use gtk::{gio, prelude::*, Button, ListView, StringList};
 use gtk::{glib, CompositeTemplate, Entry};
 
 // Object holding the state
@@ -17,7 +17,7 @@ pub struct Window {
     pub download_button: TemplateChild<Button>,
     #[template_child]
     pub results_list: TemplateChild<ListView>,
-    pub results: RefCell<Option<gio::ListStore>>,
+    pub results: RefCell<Option<StringList>>,
 }
 
 #[glib::object_subclass]
@@ -41,6 +41,8 @@ impl ObjectImpl for Window {
 
         let obj = self.obj();
         obj.setup_callbacks();
+        obj.setup_results();
+        obj.setup_factory();
     }
 }
 

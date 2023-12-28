@@ -11,7 +11,7 @@ use super::VideoData;
 #[properties(wrapper_type = super::VideoObject)]
 pub struct VideoObject {
     #[property(name = "title", get, set, type = String, member = title)]
-    #[property(name = "video-id", get, set, type = String, member = video_id)]
+    #[property(name = "id", get, set, type = String, member = id)]
     pub data: RefCell<VideoData>,
 }
 

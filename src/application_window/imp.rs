@@ -5,7 +5,8 @@ use gtk::gio::ListStore;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate, Entry};
 use gtk::{Button, ListView};
-use reqwest::blocking::Client;
+
+use crate::client::Client;
 
 // #[template(resource = "/juliangcalderon/yell/ui/window.ui/")]
 // Object holding the state
@@ -22,7 +23,7 @@ pub struct ApplicationWindow {
     pub results_list: TemplateChild<ListView>,
 
     pub results: RefCell<Option<ListStore>>,
-    pub client: RefCell<Option<Client>>,
+    pub client: RefCell<Client>,
 }
 
 #[glib::object_subclass]
@@ -47,9 +48,7 @@ impl ObjectImpl for ApplicationWindow {
         let obj = self.obj();
 
         obj.setup_callbacks();
-        obj.setup_factory();
-        obj.setup_results();
-        obj.setup_client();
+        obj.setup_list();
     }
 }
 

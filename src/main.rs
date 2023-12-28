@@ -1,12 +1,23 @@
 mod application;
 mod application_window;
+mod client;
 mod config;
 mod video;
 
+use std::error::Error;
+
 use application::Application;
 use dotenv::dotenv;
+use gtk::glib::once_cell::sync::Lazy;
 use gtk::prelude::*;
 use gtk::{gio, glib};
+use tokio::runtime::Runtime;
+
+static RUNTIME: Lazy<Runtime> =
+    Lazy::new(|| Runtime::new().expect("Setting up tokio runtime needs to succeed."));
+
+// type BoxResult<T> = Result<T, Box<dyn Error>>;
+type BoxSendResult<T> = Result<T, Box<dyn Error + Send + Sync>>;
 
 fn main() -> glib::ExitCode {
     load_env();

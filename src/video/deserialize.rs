@@ -28,7 +28,7 @@ impl From<VideoItem> for VideoData {
     fn from(value: VideoItem) -> Self {
         Self {
             title: value.snippet.title,
-            video_id: value.id.video_id,
+            id: value.id.video_id,
         }
     }
 }

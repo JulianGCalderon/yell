@@ -1,21 +1,15 @@
 mod imp;
 
 use gtk::gio::ListStore;
-use reqwest::blocking::Client;
-use rustube::blocking::Video;
-use rustube::Id;
-use std::error::Error;
+use gtk::glib::spawn_future_local;
 
-use crate::video::{VideoObject, VideoResponse};
+use crate::client::Client;
+use crate::video::VideoObject;
+use crate::{config, RUNTIME};
 use glib::{clone, Object};
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, Application, BuilderListItemFactory, BuilderScope, SingleSelection};
-
-const MAX_RESULTS: usize = 50;
-const REQUEST_TYPE: &str = "video";
-const REQUEST_PART: &str = "snippet";
-const SEARCH_URL: &str = "https://www.googleapis.com/youtube/v3/search";
 
 glib::wrapper! {
     pub struct ApplicationWindow(ObjectSubclass<imp::ApplicationWindow>)
@@ -29,45 +23,33 @@ impl ApplicationWindow {
         Object::builder().property("application", app).build()
     }
 
-    fn query_videos(&self) {
-        let buffer = self.imp().search_entry.buffer();
-        let query = buffer.text().to_string();
-        if query.is_empty() {
+    async fn query_videos(&self) {
+        let buffer = self.imp().search_entry.buffer().text().to_string();
+        if buffer.is_empty() {
             return;
         }
 
-        if let Err(err) = self.send_query(query) {
-            eprintln!("Could not query youtube, with error: {:?}", err);
+        let client = self.client();
+        let (sender, receiver) = async_channel::bounded(1);
+
+        RUNTIME.spawn(async move {
+            let res = client.query(buffer).await;
+            if let Err(err) = sender.send(res).await {
+                eprintln!("Could not send to channel, with error: {:?}", err);
+            }
+        });
+
+        match receiver.recv().await {
+            Ok(Ok(videos)) => {
+                self.set_results(videos.into());
+            }
+            Ok(Err(err)) => {
+                eprintln!("Could not query videos, with error: {:?}", err);
+            }
+            Err(err) => {
+                eprintln!("Could not receive from channel, with error: {:?}", err);
+            }
         }
-    }
-
-    fn send_query(&self, query: String) -> Result<(), Box<dyn Error>> {
-        let key = dotenv::var("API_KEY").expect("Could not get API key from env. variable");
-
-        let max_results = MAX_RESULTS.to_string();
-
-        let response = self
-            .client()
-            .get(SEARCH_URL)
-            .query(&[
-                ("part", REQUEST_PART),
-                ("type", REQUEST_TYPE),
-                ("max_results", &max_results),
-                ("key", &key),
-                ("q", &query),
-            ])
-            .header("key", key)
-            .send()?
-            .text()?;
-
-        // let _ = query;
-        // let response = fs::read_to_string("demo_response.json").unwrap();
-
-        let videos = serde_json::from_str::<VideoResponse>(&response)?.into();
-
-        self.set_results(videos);
-
-        Ok(())
     }
 
     fn set_results(&self, videos: Vec<VideoObject>) {
@@ -75,73 +57,97 @@ impl ApplicationWindow {
         self.results().extend_from_slice(&videos);
     }
 
-    fn download_selected(&self) {
+    fn get_selected(&self) -> Option<VideoObject> {
         let selection_model = self
             .imp()
             .results_list
             .model()
             .expect("Could not get selection model");
 
-        let selected_bitset = selection_model.selection();
+        let selected_index = selection_model.selection().nth(0);
 
-        if selected_bitset.is_empty() {
-            return;
-        }
-
-        let selected_index = selected_bitset.nth(0);
-
-        let selected = self
-            .results()
-            .item(selected_index)
-            .expect("Selected item should exist")
+        self.results()
+            .item(selected_index)?
             .downcast::<VideoObject>()
-            .expect("Item should be VideoObject");
-
-        let video_id = selected.property("video_id");
-
-        if let Err(err) = self.download_video(video_id) {
-            eprintln!("Could not download video, with error: {:?}", err);
-        }
+            .ok()
     }
 
-    fn download_video(&self, video_id: String) -> Result<(), Box<dyn Error>> {
-        let video_id = Id::from_string(video_id)?;
-        let video = Video::from_id(video_id)?;
+    async fn download_selected(&self) {
+        let selected = match self.get_selected() {
+            Some(selected) => selected,
+            None => return,
+        };
 
-        video
-            .best_quality()
-            .ok_or("Could not get best quality")?
-            .blocking_download()?;
+        let id = selected.property("id");
 
-        Ok(())
+        let client = self.client();
+        let (sender, receiver) = async_channel::bounded(1);
+
+        RUNTIME.spawn(async move {
+            let res = client.download(id).await;
+            if let Err(err) = sender.send(res).await {
+                eprintln!("Could not send to channel, with error: {:?}", err);
+            }
+        });
+
+        match receiver.recv().await {
+            Ok(Ok(())) => {}
+            Ok(Err(err)) => {
+                eprintln!("Could not download video, with error: {:?}", err);
+            }
+            Err(err) => {
+                eprintln!("Could not receive from channel, with error: {:?}", err);
+            }
+        }
     }
 
     fn setup_callbacks(&self) {
         self.imp()
             .search_button
-            .connect_clicked(clone!(@weak self as window => move |_| {
-                window.query_videos();
+            .connect_clicked(clone!(@weak self as _self => move |_| {
+                spawn_future_local(async move {
+                    _self.imp().search_button.set_sensitive(false);
+                    _self.query_videos().await;
+                    _self.imp().search_button.set_sensitive(true);
+                });
             }));
 
         self.imp()
             .search_entry
-            .connect_activate(clone!(@weak self as window => move |_| {
-                window.query_videos();
+            .connect_activate(clone!(@weak self as _self => move |_| {
+                spawn_future_local(async move {
+                    _self.imp().search_button.set_sensitive(false);
+                    _self.query_videos().await;
+                    _self.imp().search_button.set_sensitive(true);
+                });
             }));
 
         self.imp()
             .download_button
-            .connect_clicked(clone!(@weak self as window => move |_| {
-                window.download_selected();
+            .connect_clicked(clone!(@weak self as _self => move |_| {
+                spawn_future_local(async move {
+                    _self.imp().download_button.set_sensitive(false);
+                    _self.imp().results_list.set_sensitive(false);
+                    _self.download_selected().await;
+                    _self.imp().download_button.set_sensitive(true);
+                    _self.imp().results_list.set_sensitive(true);
+                });
             }));
     }
 
-    fn setup_results(&self) {
+    fn setup_list(&self) {
         let model = ListStore::new::<VideoObject>();
         self.imp().results.replace(Some(model));
 
         let selection_model = SingleSelection::new(Some(self.results()));
         self.imp().results_list.set_model(Some(&selection_model));
+
+        let factory = BuilderListItemFactory::from_resource(
+            None::<&BuilderScope>,
+            &format!("{}ui/video-item.ui", config::APP_IDPATH),
+        );
+
+        self.imp().results_list.set_factory(Some(&factory));
     }
 
     fn results(&self) -> ListStore {
@@ -152,24 +158,7 @@ impl ApplicationWindow {
             .expect("Could not get current tasks.")
     }
 
-    fn setup_client(&self) {
-        self.imp().client.replace(Some(Client::new()));
-    }
-
     fn client(&self) -> Client {
-        self.imp()
-            .client
-            .borrow()
-            .clone()
-            .expect("Could not get client")
-    }
-
-    fn setup_factory(&self) {
-        let factory = BuilderListItemFactory::from_resource(
-            None::<&BuilderScope>,
-            "/com/github/juliangcalderon/yell/ui/video-item.ui",
-        );
-
-        self.imp().results_list.set_factory(Some(&factory));
+        self.imp().client.borrow().clone()
     }
 }

@@ -1,26 +1,24 @@
+mod application;
+mod application_window;
+mod config;
 mod video;
-mod window;
 
+use application::Application;
 use dotenv::dotenv;
 use gtk::prelude::*;
-use gtk::{gio, glib, Application};
-use window::Window;
-
-const APP_ID: &str = "juliangcalderon.yell";
+use gtk::{gio, glib};
 
 fn main() -> glib::ExitCode {
-    dotenv().ok();
+    load_env();
+    load_resources();
 
-    gio::resources_register_include!("compiled.gresource").expect("Failed to register resources.");
-
-    let app = Application::builder().application_id(APP_ID).build();
-
-    app.connect_activate(build_ui);
-
-    app.run()
+    Application::new().run()
 }
 
-fn build_ui(app: &Application) {
-    let window = Window::new(app);
-    window.present();
+fn load_resources() {
+    gio::resources_register_include!("compiled.gresource").expect("Failed to register resources.");
+}
+
+fn load_env() {
+    dotenv().expect("Failed to load .env file");
 }

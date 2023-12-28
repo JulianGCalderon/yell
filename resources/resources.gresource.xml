@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/juliangcalderon/yell/">
-    <file compressed="true" preprocess="xml-stripblanks">ui/window.ui</file>
-    <file compressed="true" preprocess="xml-stripblanks">ui/video.ui</file>
+  <gresource prefix="/com/github/juliangcalderon/yell/">
+    <file compressed="true" preprocess="xml-stripblanks">ui/application-window.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/video-item.ui</file>
   </gresource>
 </gresources>

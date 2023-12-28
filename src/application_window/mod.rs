@@ -5,9 +5,8 @@ use reqwest::blocking::Client;
 use rustube::blocking::Video;
 use rustube::Id;
 use std::error::Error;
-use std::fs;
 
-use crate::video::{VideoData, VideoObject, VideoResponse};
+use crate::video::{VideoObject, VideoResponse};
 use glib::{clone, Object};
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
@@ -19,13 +18,13 @@ const REQUEST_PART: &str = "snippet";
 const SEARCH_URL: &str = "https://www.googleapis.com/youtube/v3/search";
 
 glib::wrapper! {
-    pub struct Window(ObjectSubclass<imp::Window>)
+    pub struct ApplicationWindow(ObjectSubclass<imp::ApplicationWindow>)
         @extends gtk::ApplicationWindow, gtk::Window, gtk::Widget,
         @implements gio::ActionGroup, gio::ActionMap, gtk::Accessible, gtk::Buildable,
                     gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
-impl Window {
+impl ApplicationWindow {
     pub fn new(app: &Application) -> Self {
         Object::builder().property("application", app).build()
     }
@@ -168,7 +167,7 @@ impl Window {
     fn setup_factory(&self) {
         let factory = BuilderListItemFactory::from_resource(
             None::<&BuilderScope>,
-            "/juliangcalderon/yell/ui/video.ui",
+            "/com/github/juliangcalderon/yell/ui/video-item.ui",
         );
 
         self.imp().results_list.set_factory(Some(&factory));

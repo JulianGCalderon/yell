@@ -7,10 +7,11 @@ use gtk::{glib, CompositeTemplate, Entry};
 use gtk::{Button, ListView};
 use reqwest::blocking::Client;
 
+// #[template(resource = "/juliangcalderon/yell/ui/window.ui/")]
 // Object holding the state
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/juliangcalderon/yell/ui/window.ui/")]
-pub struct Window {
+#[template(resource = "/com/github/juliangcalderon/yell/ui/application-window.ui")]
+pub struct ApplicationWindow {
     #[template_child]
     pub search_entry: TemplateChild<Entry>,
     #[template_child]
@@ -25,9 +26,9 @@ pub struct Window {
 }
 
 #[glib::object_subclass]
-impl ObjectSubclass for Window {
-    const NAME: &'static str = "YellWindow";
-    type Type = super::Window;
+impl ObjectSubclass for ApplicationWindow {
+    const NAME: &'static str = "YellApplicationWindow";
+    type Type = super::ApplicationWindow;
     type ParentType = gtk::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
@@ -39,7 +40,7 @@ impl ObjectSubclass for Window {
     }
 }
 
-impl ObjectImpl for Window {
+impl ObjectImpl for ApplicationWindow {
     fn constructed(&self) {
         self.parent_constructed();
 
@@ -52,6 +53,6 @@ impl ObjectImpl for Window {
     }
 }
 
-impl WidgetImpl for Window {}
-impl WindowImpl for Window {}
-impl ApplicationWindowImpl for Window {}
+impl WidgetImpl for ApplicationWindow {}
+impl WindowImpl for ApplicationWindow {}
+impl ApplicationWindowImpl for ApplicationWindow {}

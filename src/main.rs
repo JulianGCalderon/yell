@@ -1,26 +1,35 @@
+mod application;
+mod application_window;
+mod client;
+mod config;
 mod video;
-mod window;
 
+use std::error::Error;
+
+use application::Application;
 use dotenv::dotenv;
+use gtk::glib::once_cell::sync::Lazy;
 use gtk::prelude::*;
-use gtk::{gio, glib, Application};
-use window::Window;
+use gtk::{gio, glib};
+use tokio::runtime::Runtime;
 
-const APP_ID: &str = "juliangcalderon.yell";
+static RUNTIME: Lazy<Runtime> =
+    Lazy::new(|| Runtime::new().expect("Setting up tokio runtime needs to succeed."));
+
+// type BoxResult<T> = Result<T, Box<dyn Error>>;
+type BoxSendResult<T> = Result<T, Box<dyn Error + Send + Sync>>;
 
 fn main() -> glib::ExitCode {
-    dotenv().ok();
+    load_env();
+    load_resources();
 
-    gio::resources_register_include!("compiled.gresource").expect("Failed to register resources.");
-
-    let app = Application::builder().application_id(APP_ID).build();
-
-    app.connect_activate(build_ui);
-
-    app.run()
+    Application::new().run()
 }
 
-fn build_ui(app: &Application) {
-    let window = Window::new(app);
-    window.present();
+fn load_resources() {
+    gio::resources_register_include!("compiled.gresource").expect("Failed to register resources.");
+}
+
+fn load_env() {
+    dotenv().expect("Failed to load .env file");
 }

@@ -14,7 +14,7 @@ impl VideoObject {
     pub fn new(data: VideoData) -> Self {
         Object::builder()
             .property("title", data.title)
-            .property("video-id", data.video_id)
+            .property("id", data.id)
             .build()
     }
 }
@@ -22,5 +22,5 @@ impl VideoObject {
 #[derive(Default, Debug)]
 pub struct VideoData {
     pub title: String,
-    pub video_id: String,
+    pub id: String,
 }

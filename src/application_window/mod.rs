@@ -9,7 +9,8 @@ use crate::{config, RUNTIME};
 use glib::{clone, Object};
 use gtk::subclass::prelude::*;
 use gtk::{
-    gio, glib, Application, BuilderListItemFactory, BuilderScope, MessageDialog, SingleSelection,
+    gio, glib, Application, BuilderListItemFactory, BuilderScope, FileChooserAction,
+    FileChooserDialog, MessageDialog, ResponseType, SingleSelection,
 };
 use gtk::{prelude::*, Builder};
 
@@ -127,30 +128,55 @@ impl ApplicationWindow {
         self.imp()
             .download_button
             .connect_clicked(clone!(@weak self as self_ => move |_| {
-                spawn_future_local(async move {
-                    let download_dialog = Builder::from_resource(&format!("{}ui/download-dialog.ui", config::APP_IDPATH))
-                        .objects().remove(0)
-                        .downcast::<MessageDialog>()
-                        .expect("Should be a MessageDialog");
+                let file_chooser_dialog = FileChooserDialog::new(
+                    Some("Select download location"),
+                    Some(&self_),
+                    FileChooserAction::Save,
+                    &[("Save", ResponseType::Accept), ("Cancel", ResponseType::Cancel)]
+                );
 
-                    download_dialog.set_transient_for(Some(&self_));
-                    download_dialog.show();
+                file_chooser_dialog.connect_response(clone!(@weak self_ => move |this, event| {
+                    match event {
+                        ResponseType::Accept => {
+                            let path = match this.file() {
+                                Some(path) => path,
+                                None => return,
+                            };
 
-                    self_.download_selected().await;
+                            spawn_future_local(async move {
+                                let download_dialog = Builder::from_resource(&format!("{}ui/download-dialog.ui", config::APP_IDPATH))
+                                    .objects().remove(0)
+                                    .downcast::<MessageDialog>()
+                                    .expect("Should be a MessageDialog");
 
-                    let finished_dialog = Builder::from_resource(&format!("{}ui/finished-dialog.ui", config::APP_IDPATH))
-                        .objects().remove(0)
-                        .downcast::<MessageDialog>()
-                        .expect("Should be a MessageDialog");
+                                download_dialog.set_transient_for(Some(&self_));
+                                download_dialog.show();
 
-                    finished_dialog.set_transient_for(Some(&self_));
-                    finished_dialog.connect_response(|self_, _| {
-                        self_.destroy();
-                    });
+                                // refactor: get selection should happen before file chooser dialog
+                                self_.download_selected().await;
 
-                    download_dialog.destroy();
-                    finished_dialog.show();
-                });
+                                let finished_dialog = Builder::from_resource(&format!("{}ui/finished-dialog.ui", config::APP_IDPATH))
+                                    .objects().remove(0)
+                                    .downcast::<MessageDialog>()
+                                    .expect("Should be a MessageDialog");
+
+                                finished_dialog.set_transient_for(Some(&self_));
+                                finished_dialog.connect_response(|self_, _| {
+                                    self_.destroy();
+                                });
+
+                                download_dialog.destroy();
+                                finished_dialog.show();
+                            });
+                        },
+                        _ => {},
+                    }
+
+                    this.destroy();
+                }));
+
+
+                file_chooser_dialog.present();
             }));
     }
 

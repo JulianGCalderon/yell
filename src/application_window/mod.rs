@@ -7,9 +7,11 @@ use crate::client::Client;
 use crate::video_object::VideoObject;
 use crate::{config, RUNTIME};
 use glib::{clone, Object};
-use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use gtk::{gio, glib, Application, BuilderListItemFactory, BuilderScope, SingleSelection};
+use gtk::{
+    gio, glib, Application, BuilderListItemFactory, BuilderScope, MessageDialog, SingleSelection,
+};
+use gtk::{prelude::*, Builder};
 
 glib::wrapper! {
     pub struct ApplicationWindow(ObjectSubclass<imp::ApplicationWindow>)
@@ -104,33 +106,50 @@ impl ApplicationWindow {
     fn setup_callbacks(&self) {
         self.imp()
             .search_button
-            .connect_clicked(clone!(@weak self as _self => move |_| {
+            .connect_clicked(clone!(@weak self as self_ => move |_| {
                 spawn_future_local(async move {
-                    _self.imp().search_button.set_sensitive(false);
-                    _self.query_videos().await;
-                    _self.imp().search_button.set_sensitive(true);
+                    self_.imp().search_button.set_sensitive(false);
+                    self_.query_videos().await;
+                    self_.imp().search_button.set_sensitive(true);
                 });
             }));
 
         self.imp()
             .search_entry
-            .connect_activate(clone!(@weak self as _self => move |_| {
+            .connect_activate(clone!(@weak self as self_ => move |_| {
                 spawn_future_local(async move {
-                    _self.imp().search_button.set_sensitive(false);
-                    _self.query_videos().await;
-                    _self.imp().search_button.set_sensitive(true);
+                    self_.imp().search_button.set_sensitive(false);
+                    self_.query_videos().await;
+                    self_.imp().search_button.set_sensitive(true);
                 });
             }));
 
         self.imp()
             .download_button
-            .connect_clicked(clone!(@weak self as _self => move |_| {
+            .connect_clicked(clone!(@weak self as self_ => move |_| {
                 spawn_future_local(async move {
-                    _self.imp().download_button.set_sensitive(false);
-                    _self.imp().results_list.set_sensitive(false);
-                    _self.download_selected().await;
-                    _self.imp().download_button.set_sensitive(true);
-                    _self.imp().results_list.set_sensitive(true);
+                    let download_dialog = Builder::from_resource(&format!("{}ui/download-dialog.ui", config::APP_IDPATH))
+                        .objects().remove(0)
+                        .downcast::<MessageDialog>()
+                        .expect("Should be a MessageDialog");
+
+                    download_dialog.set_transient_for(Some(&self_));
+                    download_dialog.show();
+
+                    self_.download_selected().await;
+
+                    let finished_dialog = Builder::from_resource(&format!("{}ui/finished-dialog.ui", config::APP_IDPATH))
+                        .objects().remove(0)
+                        .downcast::<MessageDialog>()
+                        .expect("Should be a MessageDialog");
+
+                    finished_dialog.set_transient_for(Some(&self_));
+                    finished_dialog.connect_response(|self_, _| {
+                        self_.destroy();
+                    });
+
+                    download_dialog.destroy();
+                    finished_dialog.show();
                 });
             }));
     }

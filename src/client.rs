@@ -1,6 +1,6 @@
 use rustube::{Id, Video};
 
-use crate::{video::VideoResponse, BoxSendResult};
+use crate::{video_object::VideoResponse, BoxSendResult};
 
 const MAX_RESULTS: usize = 50;
 const REQUEST_TYPE: &str = "video";

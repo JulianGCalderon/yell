@@ -4,7 +4,7 @@ use gtk::gio::ListStore;
 use gtk::glib::spawn_future_local;
 
 use crate::client::Client;
-use crate::video::VideoObject;
+use crate::video_object::VideoObject;
 use crate::{config, RUNTIME};
 use glib::{clone, Object};
 use gtk::prelude::*;

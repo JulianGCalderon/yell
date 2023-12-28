@@ -2,7 +2,7 @@ mod application;
 mod application_window;
 mod client;
 mod config;
-mod video;
+mod video_object;
 
 use std::error::Error;
 

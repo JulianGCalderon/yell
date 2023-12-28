@@ -2,14 +2,21 @@ mod imp;
 
 use gtk::gio::ListStore;
 use reqwest::blocking::Client;
+use rustube::blocking::Video;
+use rustube::Id;
 use std::error::Error;
 use std::fs;
 
-use crate::video::{VideoData, VideoObject};
+use crate::video::{VideoData, VideoObject, VideoResponse};
 use glib::{clone, Object};
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, Application, BuilderListItemFactory, BuilderScope, SingleSelection};
+
+const MAX_RESULTS: usize = 50;
+const REQUEST_TYPE: &str = "video";
+const REQUEST_PART: &str = "snippet";
+const SEARCH_URL: &str = "https://www.googleapis.com/youtube/v3/search";
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
@@ -36,33 +43,28 @@ impl Window {
     }
 
     fn send_query(&self, query: String) -> Result<(), Box<dyn Error>> {
-        // let key = dotenv::var("API_KEY").expect("Could not get API key from env. variable");
-        //
-        // let response = self
-        //     .client()
-        //     .get("https://www.googleapis.com/youtube/v3/search")
-        //     .query(&[("part", "snippet"), ("key", &key), ("q", &query)])
-        //     .header("key", key)
-        //     .send()?
-        //     .text()?;
+        let key = dotenv::var("API_KEY").expect("Could not get API key from env. variable");
 
-        let _ = query;
-        let response_text = fs::read_to_string("demo_response.json").unwrap();
+        let max_results = MAX_RESULTS.to_string();
 
-        let mut response_json = serde_json::from_str::<serde_json::Value>(&response_text)?;
+        let response = self
+            .client()
+            .get(SEARCH_URL)
+            .query(&[
+                ("part", REQUEST_PART),
+                ("type", REQUEST_TYPE),
+                ("max_results", &max_results),
+                ("key", &key),
+                ("q", &query),
+            ])
+            .header("key", key)
+            .send()?
+            .text()?;
 
-        let videos_json = response_json
-            .get_mut("items")
-            .ok_or("Response should have 'items' object")?
-            .as_array_mut()
-            .ok_or("'items' should be an array")?;
+        // let _ = query;
+        // let response = fs::read_to_string("demo_response.json").unwrap();
 
-        let videos = videos_json
-            .iter_mut()
-            .map(|video| video.take())
-            .flat_map(VideoData::try_from)
-            .map(VideoObject::new)
-            .collect::<Vec<VideoObject>>();
+        let videos = serde_json::from_str::<VideoResponse>(&response)?.into();
 
         self.set_results(videos);
 
@@ -96,7 +98,23 @@ impl Window {
             .downcast::<VideoObject>()
             .expect("Item should be VideoObject");
 
-        unimplemented!("Downloading {:?}", selected);
+        let video_id = selected.property("video_id");
+
+        if let Err(err) = self.download_video(video_id) {
+            eprintln!("Could not download video, with error: {:?}", err);
+        }
+    }
+
+    fn download_video(&self, video_id: String) -> Result<(), Box<dyn Error>> {
+        let video_id = Id::from_string(video_id)?;
+        let video = Video::from_id(video_id)?;
+
+        video
+            .best_quality()
+            .ok_or("Could not get best quality")?
+            .blocking_download()?;
+
+        Ok(())
     }
 
     fn setup_callbacks(&self) {

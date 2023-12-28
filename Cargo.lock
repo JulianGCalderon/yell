@@ -1705,7 +1705,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "youtube-downloader"
+name = "yell"
 version = "0.1.0"
 dependencies = [
  "dotenv",

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/juliangcalderon/youtube-downloader/">
+  <gresource prefix="/juliangcalderon/yell/">
     <file compressed="true" preprocess="xml-stripblanks">ui/window.ui</file>
-    <file compressed="true" preprocess="xml-stripblanks">ui/result.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/video.ui</file>
   </gresource>
 </gresources>

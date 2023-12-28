@@ -1,14 +1,15 @@
 use std::cell::RefCell;
 
 use glib::subclass::InitializingObject;
+use gtk::gio::ListStore;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate, Entry};
-use gtk::{Button, ListView, StringList};
+use gtk::{Button, ListView};
 use reqwest::blocking::Client;
 
 // Object holding the state
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/juliangcalderon/youtube-downloader/ui/window.ui/")]
+#[template(resource = "/juliangcalderon/yell/ui/window.ui/")]
 pub struct Window {
     #[template_child]
     pub search_entry: TemplateChild<Entry>,
@@ -18,13 +19,14 @@ pub struct Window {
     pub download_button: TemplateChild<Button>,
     #[template_child]
     pub results_list: TemplateChild<ListView>,
-    pub results: RefCell<Option<StringList>>,
+
+    pub results: RefCell<Option<ListStore>>,
     pub client: RefCell<Option<Client>>,
 }
 
 #[glib::object_subclass]
 impl ObjectSubclass for Window {
-    const NAME: &'static str = "Window";
+    const NAME: &'static str = "YellWindow";
     type Type = super::Window;
     type ParentType = gtk::ApplicationWindow;
 
@@ -42,10 +44,11 @@ impl ObjectImpl for Window {
         self.parent_constructed();
 
         let obj = self.obj();
+
         obj.setup_callbacks();
+        obj.setup_factory();
         obj.setup_results();
         obj.setup_client();
-        obj.setup_factory();
     }
 }
 

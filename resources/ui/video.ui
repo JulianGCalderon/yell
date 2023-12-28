@@ -5,7 +5,7 @@
       <object class="GtkLabel">
         <property name="xalign">0</property>
         <binding name="label">
-          <lookup name="string" type="GtkStringObject">
+          <lookup name="title" type="YellVideoObject">
             <lookup name="item">GtkListItem</lookup>
           </lookup>
         </binding>

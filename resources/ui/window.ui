@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <template class="Window" parent="GtkApplicationWindow">
+  <template class="YellWindow" parent="GtkApplicationWindow">
     <property name="width-request">500</property>
     <property name="title">Youtube Downloader</property>
     <child>

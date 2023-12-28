@@ -1,4 +1,4 @@
-mod result;
+mod video;
 mod window;
 
 use dotenv::dotenv;
@@ -6,7 +6,7 @@ use gtk::prelude::*;
 use gtk::{gio, glib, Application};
 use window::Window;
 
-const APP_ID: &str = "juliangcalderon.youtube-downloader";
+const APP_ID: &str = "juliangcalderon.yell";
 
 fn main() -> glib::ExitCode {
     dotenv().ok();

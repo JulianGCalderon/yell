@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <object class="GtkDialog">
+    <property name="title"></property>
+    <property name="width-request">300</property>
     <child internal-child="content_area">
       <object class="GtkBox">
         <child>
           <object class="GtkLabel">
-            <property name="label">Downloading</property>
+            <property name="label">Download in progress</property>
           </object>
         </child>
         <child>

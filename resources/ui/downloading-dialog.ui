@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <object class="GtkMessageDialog">
-    <property name="buttons">none</property>
+    <property name="buttons">cancel</property>
     <property name="message-type">info</property>
     <property name="text">Downloading video...</property>
   </object>

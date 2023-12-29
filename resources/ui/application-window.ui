@@ -26,8 +26,8 @@
         </child>
         <child>
           <object class="GtkScrolledWindow">
-            <property name="hscrollbar-policy">never</property>
             <property name="min-content-height">360</property>
+            <property name="width-request">480</property>
             <property name="vexpand">true</property>
             <child>
               <object class="GtkListView" id="results_list">

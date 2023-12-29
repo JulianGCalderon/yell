@@ -103,21 +103,34 @@ impl ApplicationWindow {
 
         RUNTIME.spawn(async move {
             let res = client.query(query).await;
-            if let Err(err) = sender.send(res).await {
-                eprintln!("Could not send to channel, with error: {:?}", err);
-            }
+            sender
+                .send(res)
+                .await
+                .expect("Receiver should never be closed");
         });
 
         match receiver.recv().await {
             Ok(Ok(videos)) => {
                 self.set_results(videos.into());
             }
-            Ok(Err(err)) => {
-                eprintln!("Could not query videos, with error: {:?}", err);
+            Ok(Err(_)) => {
+                let error_dialog = Builder::from_resource(&format!(
+                    "{}ui/search-error-dialog.ui",
+                    config::APP_IDPATH
+                ))
+                .objects()
+                .remove(0)
+                .downcast::<MessageDialog>()
+                .expect("Should be a MessageDialog");
+
+                error_dialog.set_transient_for(Some(self));
+                error_dialog.connect_response(|self_, _| {
+                    self_.destroy();
+                });
+
+                error_dialog.show();
             }
-            Err(err) => {
-                eprintln!("Could not receive from channel, with error: {:?}", err);
-            }
+            _ => panic!("Sender should never be closed"),
         }
     }
 

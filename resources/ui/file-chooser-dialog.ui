@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="GtkFileChooserDialog">
+    <property name="title">Select download location</property>
+    <child type="action">
+      <object class="GtkButton" id="button_accept">
+        <property name="label">Save</property>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="button_cancel">
+        <property name="label">Cancel</property>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="accept">button_accept</action-widget>
+      <action-widget response="cancel" default="true">button_cancel</action-widget>
+    </action-widgets>
+  </object>
+</interface>

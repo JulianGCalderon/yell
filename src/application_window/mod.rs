@@ -1,5 +1,6 @@
 mod imp;
 
+use std::fs;
 use std::path::PathBuf;
 
 use gtk::gio::ListStore;
@@ -166,7 +167,7 @@ impl ApplicationWindow {
 
     async fn start_download(&self, id: String, path: PathBuf) {
         let download_dialog =
-            Builder::from_resource(&format!("{}ui/download-dialog.ui", config::APP_IDPATH))
+            Builder::from_resource(&format!("{}ui/downloading-dialog.ui", config::APP_IDPATH))
                 .objects()
                 .remove(0)
                 .downcast::<MessageDialog>()
@@ -178,36 +179,62 @@ impl ApplicationWindow {
         let client = self.client();
         let (sender, receiver) = async_channel::bounded(1);
 
-        RUNTIME.spawn(async move {
-            let res = client.download(id, path).await;
-            if let Err(err) = sender.send(res).await {
-                eprintln!("Could not send to channel, with error: {:?}", err);
-            }
+        let pathc = path.clone();
+        let handle = RUNTIME.spawn(async move {
+            let res = client.download(id, pathc).await;
+
+            sender
+                .send(res)
+                .await
+                .expect("Receiver should never be closed");
+        });
+
+        download_dialog.connect_response(move |self_, _| {
+            handle.abort();
+            self_.destroy();
         });
 
         match receiver.recv().await {
-            Ok(Ok(())) => {}
-            Ok(Err(err)) => {
-                eprintln!("Could not download video, with error: {:?}", err);
-            }
-            Err(err) => {
-                eprintln!("Could not receive from channel, with error: {:?}", err);
-            }
-        }
-
-        let finished_dialog =
-            Builder::from_resource(&format!("{}ui/finished-dialog.ui", config::APP_IDPATH))
+            Ok(Ok(())) => {
+                let finished_dialog = Builder::from_resource(&format!(
+                    "{}ui/download-finish-dialog.ui",
+                    config::APP_IDPATH
+                ))
                 .objects()
                 .remove(0)
                 .downcast::<MessageDialog>()
                 .expect("Should be a MessageDialog");
 
-        finished_dialog.set_transient_for(Some(self));
-        finished_dialog.connect_response(|self_, _| {
-            self_.destroy();
-        });
+                finished_dialog.set_transient_for(Some(self));
+                finished_dialog.connect_response(|self_, _| {
+                    self_.destroy();
+                });
 
-        download_dialog.destroy();
-        finished_dialog.show();
+                download_dialog.destroy();
+                finished_dialog.show();
+            }
+            Ok(Err(_)) => {
+                let error_dialog = Builder::from_resource(&format!(
+                    "{}ui/download-error-dialog.ui",
+                    config::APP_IDPATH
+                ))
+                .objects()
+                .remove(0)
+                .downcast::<MessageDialog>()
+                .expect("Should be a MessageDialog");
+
+                error_dialog.set_transient_for(Some(self));
+                error_dialog.connect_response(|self_, _| {
+                    self_.destroy();
+                });
+
+                error_dialog.show();
+            }
+            Err(_) => {
+                if let Err(err) = fs::remove_file(path) {
+                    eprintln!("Could delete leftover file, with error: {:?}", err);
+                }
+            }
+        }
     }
 }

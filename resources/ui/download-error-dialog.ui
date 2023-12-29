@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="GtkMessageDialog">
+    <property name="buttons">close</property>
+    <property name="message-type">alert</property>
+    <property name="text">Could not download video</property>
+  </object>
+</interface>

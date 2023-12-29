@@ -6,6 +6,7 @@ use std::path::PathBuf;
 use gtk::gio::ListStore;
 use gtk::glib::spawn_future_local;
 use rustube::{Callback, CallbackArguments};
+use tokio::sync::mpsc::channel;
 
 use crate::client::Client;
 use crate::video_object::VideoObject;
@@ -13,10 +14,12 @@ use crate::{config, RUNTIME};
 use glib::{clone, Object};
 use gtk::subclass::prelude::*;
 use gtk::{
-    gio, glib, Application, BuilderListItemFactory, BuilderScope, FileChooserAction,
-    FileChooserDialog, MessageDialog, ResponseType, SingleSelection,
+    gio, glib, Application, BuilderListItemFactory, BuilderScope, Dialog, FileChooserAction,
+    FileChooserDialog, MessageDialog, ProgressBar, ResponseType, SingleSelection,
 };
 use gtk::{prelude::*, Builder};
+
+const PROGRESS_CHANNEL_CAPACITY: usize = 100;
 
 glib::wrapper! {
     pub struct ApplicationWindow(ObjectSubclass<imp::ApplicationWindow>)
@@ -180,85 +183,101 @@ impl ApplicationWindow {
     }
 
     async fn start_download(&self, id: String, path: PathBuf) {
-        let download_dialog =
-            Builder::from_resource(&format!("{}ui/downloading-dialog.ui", config::APP_IDPATH))
-                .objects()
-                .remove(0)
-                .downcast::<MessageDialog>()
-                .expect("Should be a MessageDialog");
+        let download_builder =
+            Builder::from_resource(&format!("{}ui/downloading-dialog.ui", config::APP_IDPATH));
+
+        let download_dialog = download_builder
+            .objects()
+            .remove(0)
+            .downcast::<Dialog>()
+            .expect("Should be a MessageDialog");
 
         download_dialog.set_transient_for(Some(self));
         download_dialog.show();
 
-        let client = self.client();
-        let (sender, receiver) = async_channel::bounded(1);
+        let progress_bar: ProgressBar = download_builder
+            .object("progress_bar")
+            .expect("Should exist a progress bar");
+
+        let (progress_sender, mut progress_receiver) = channel(PROGRESS_CHANNEL_CAPACITY);
+        let (complete_sender, mut complete_receiver) = channel(1);
+        let (abort_sender, mut abort_receiver) = channel(1);
 
         let callback = Callback::new();
-        let callback = callback.connect_on_progress_closure(
-            |CallbackArguments {
-                 current_chunk,
-                 content_length,
-             }| {
-                println!("Downloaded {} from {:?}", current_chunk, content_length);
-            },
-        );
-
-        let pathc = path.clone();
-        let handle = RUNTIME.spawn(async move {
-            let res = client.download(id, pathc, callback).await;
-
-            sender
-                .send(res)
-                .await
-                .expect("Receiver should never be closed");
-        });
+        let callback = callback.connect_on_progress_sender(progress_sender, true);
 
         download_dialog.connect_response(move |self_, _| {
-            handle.abort();
+            abort_sender.blocking_send(()).ok();
             self_.destroy();
         });
 
-        match receiver.recv().await {
-            Ok(Ok(())) => {
-                let finished_dialog = Builder::from_resource(&format!(
-                    "{}ui/download-finish-dialog.ui",
-                    config::APP_IDPATH
-                ))
-                .objects()
-                .remove(0)
-                .downcast::<MessageDialog>()
-                .expect("Should be a MessageDialog");
+        let client = self.client();
+        let path_clone = path.clone();
+        RUNTIME.spawn(async move {
+            let res = client.download(id, path_clone, callback).await;
+            complete_sender.send(res).await.ok()
+        });
 
-                finished_dialog.set_transient_for(Some(self));
-                finished_dialog.connect_response(|self_, _| {
-                    self_.destroy();
-                });
+        loop {
+            tokio::select! {
+                Some(progress) = progress_receiver.recv() => {
+                    let CallbackArguments { current_chunk, content_length } = progress;
+                    let Some(content_length) = content_length else { return };
+                    let fraction = current_chunk as f64 / content_length as f64;
 
-                download_dialog.destroy();
-                finished_dialog.show();
-            }
-            Ok(Err(_)) => {
-                let error_dialog = Builder::from_resource(&format!(
-                    "{}ui/download-error-dialog.ui",
-                    config::APP_IDPATH
-                ))
-                .objects()
-                .remove(0)
-                .downcast::<MessageDialog>()
-                .expect("Should be a MessageDialog");
-
-                error_dialog.set_transient_for(Some(self));
-                error_dialog.connect_response(|self_, _| {
-                    self_.destroy();
-                });
-
-                error_dialog.show();
-            }
-            Err(_) => {
-                if let Err(err) = fs::remove_file(path) {
-                    eprintln!("Could delete leftover file, with error: {:?}", err);
+                    progress_bar.set_fraction(fraction);
                 }
-            }
+                Some(complete) = complete_receiver.recv() => {
+                    download_dialog.destroy();
+                    match complete {
+                        Ok(_) => self.open_download_finish_dialog(),
+                        Err(_) => self.open_download_error_dialog(),
+                    }
+                    return;
+                }
+                Some(()) = abort_receiver.recv() => {
+                    if let Err(err) = fs::remove_file(path) {
+                        eprintln!("Could delete leftover file, with error: {:?}", err);
+                    }
+                    return;
+                }
+            };
         }
+    }
+
+    fn open_download_finish_dialog(&self) {
+        let finished_dialog = Builder::from_resource(&format!(
+            "{}ui/download-finish-dialog.ui",
+            config::APP_IDPATH
+        ))
+        .objects()
+        .remove(0)
+        .downcast::<MessageDialog>()
+        .expect("Should be a MessageDialog");
+
+        finished_dialog.set_transient_for(Some(self));
+        finished_dialog.connect_response(|self_, _| {
+            self_.destroy();
+        });
+
+        finished_dialog.show();
+    }
+
+    fn open_download_error_dialog(&self) {
+        let error_dialog = Builder::from_resource(&format!(
+            "{}ui/download-error-dialog.ui",
+            config::APP_IDPATH
+        ))
+        .objects()
+        .remove(0)
+        .downcast::<MessageDialog>()
+        .expect("Should be a MessageDialog");
+
+        error_dialog.set_transient_for(Some(self));
+        error_dialog.connect_response(|self_, _| {
+            self_.destroy();
+        });
+
+        error_dialog.show();
     }
 }

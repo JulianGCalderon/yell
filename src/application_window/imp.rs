@@ -2,15 +2,15 @@ use std::cell::RefCell;
 
 use glib::subclass::InitializingObject;
 use gtk::gio::ListStore;
+use gtk::glib;
 use gtk::subclass::prelude::*;
-use gtk::{glib, CompositeTemplate, Entry};
-use gtk::{Button, ListView};
+use gtk::{Button, Entry, ListView};
 
 use crate::client::Client;
 
 // #[template(resource = "/juliangcalderon/yell/ui/window.ui/")]
 // Object holding the state
-#[derive(CompositeTemplate, Default)]
+#[derive(gtk::CompositeTemplate, Default)]
 #[template(resource = "/com/github/juliangcalderon/yell/ui/application-window.ui")]
 pub struct ApplicationWindow {
     #[template_child]
@@ -34,6 +34,7 @@ impl ObjectSubclass for ApplicationWindow {
 
     fn class_init(klass: &mut Self::Class) {
         klass.bind_template();
+        klass.bind_template_instance_callbacks();
     }
 
     fn instance_init(obj: &InitializingObject<Self>) {
@@ -47,7 +48,6 @@ impl ObjectImpl for ApplicationWindow {
 
         let obj = self.obj();
 
-        obj.setup_callbacks();
         obj.setup_list();
     }
 }

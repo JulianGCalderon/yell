@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, path::PathBuf};
 
 use rustube::{Id, Video};
 
@@ -55,14 +55,14 @@ impl Client {
         Ok(serde_json::from_str::<VideoResponse>(&response)?)
     }
 
-    pub async fn download(&self, id: String) -> BoxSendResult<()> {
+    pub async fn download(&self, id: String, path: PathBuf) -> BoxSendResult<()> {
         let video_id = Id::from_string(id)?;
         let video = Video::from_id(video_id).await?;
 
         video
             .best_quality()
             .ok_or("Could not get best quality")?
-            .download()
+            .download_to(path)
             .await?;
 
         Ok(())

@@ -12,12 +12,14 @@
               <object class="GtkEntry" id="search_entry">
                 <property name="hexpand">true</property>
                 <property name="placeholder-text">search for...</property>
+                <signal name="activate" handler="handle_search" swapped="true" />
               </object>
             </child>
             <child>
               <object class="GtkButton" id="search_button">
                 <property name="width-request">100</property>
                 <property name="label">Search!</property>
+                <signal name="clicked" handler="handle_search" swapped="true" />
               </object>
             </child>
           </object>
@@ -37,6 +39,7 @@
         <child>
           <object class="GtkButton" id="download_button">
             <property name="label">Download</property>
+            <signal name="clicked" handler="handle_download" swapped="true" />
           </object>
         </child>
       </object>

@@ -1,3 +1,4 @@
+use html_escape::decode_html_entities;
 use serde::Deserialize;
 
 use super::{VideoData, VideoObject};
@@ -26,8 +27,10 @@ struct VideoSnippet {
 
 impl From<VideoItem> for VideoData {
     fn from(value: VideoItem) -> Self {
+        let title = decode_html_entities(&value.snippet.title).to_string();
+
         Self {
-            title: value.snippet.title,
+            title,
             id: value.id.video_id,
         }
     }

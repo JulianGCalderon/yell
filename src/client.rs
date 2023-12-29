@@ -1,6 +1,6 @@
 use std::{fs, path::PathBuf};
 
-use rustube::{Id, Video};
+use rustube::{Callback, Id, Video};
 
 use crate::{video_object::VideoResponse, BoxSendResult};
 
@@ -55,14 +55,19 @@ impl Client {
         Ok(serde_json::from_str::<VideoResponse>(&response)?)
     }
 
-    pub async fn download(&self, id: String, path: PathBuf) -> BoxSendResult<()> {
+    pub async fn download(
+        &self,
+        id: String,
+        path: PathBuf,
+        callback: Callback,
+    ) -> BoxSendResult<()> {
         let video_id = Id::from_string(id)?;
         let video = Video::from_id(video_id).await?;
 
         video
             .best_quality()
             .ok_or("Could not get best quality")?
-            .download_to(path)
+            .download_to_with_callback(path, callback)
             .await?;
 
         Ok(())

@@ -5,6 +5,7 @@ use std::path::PathBuf;
 
 use gtk::gio::ListStore;
 use gtk::glib::spawn_future_local;
+use rustube::{Callback, CallbackArguments};
 
 use crate::client::Client;
 use crate::video_object::VideoObject;
@@ -192,9 +193,19 @@ impl ApplicationWindow {
         let client = self.client();
         let (sender, receiver) = async_channel::bounded(1);
 
+        let callback = Callback::new();
+        let callback = callback.connect_on_progress_closure(
+            |CallbackArguments {
+                 current_chunk,
+                 content_length,
+             }| {
+                println!("Downloaded {} from {:?}", current_chunk, content_length);
+            },
+        );
+
         let pathc = path.clone();
         let handle = RUNTIME.spawn(async move {
-            let res = client.download(id, pathc).await;
+            let res = client.download(id, pathc, callback).await;
 
             sender
                 .send(res)

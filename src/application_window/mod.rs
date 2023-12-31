@@ -297,6 +297,7 @@ impl ApplicationWindow {
             return;
         };
 
+        self.imp().preview.set_visible(true);
         self.imp().preview.set_video(selected);
     }
 }

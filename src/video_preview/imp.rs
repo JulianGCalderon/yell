@@ -2,9 +2,9 @@ use std::cell::RefCell;
 
 use glib::subclass::InitializingObject;
 use gtk::glib::Properties;
-use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use gtk::{glib, Picture};
+use gtk::{glib, Picture, TextView};
+use gtk::{prelude::*, Label};
 
 use crate::video_object::VideoObject;
 
@@ -14,6 +14,14 @@ use crate::video_object::VideoObject;
 pub struct VideoPreview {
     #[template_child]
     pub thumbnail: TemplateChild<Picture>,
+    #[template_child]
+    pub title: TemplateChild<Label>,
+    #[template_child]
+    pub description: TemplateChild<TextView>,
+    #[template_child]
+    pub channel_title: TemplateChild<Label>,
+    #[template_child]
+    pub published_at: TemplateChild<Label>,
 
     #[property(name="video", get, set, type = VideoObject)]
     pub video: RefCell<VideoObject>,

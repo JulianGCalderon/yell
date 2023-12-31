@@ -53,6 +53,7 @@
             <property name="hscrollbar-policy">never</property>
             <child>
               <object class="YellVideoPreview" id="preview">
+                <property name="visible">false</property>
               </object>
             </child>
           </object>

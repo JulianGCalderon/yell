@@ -14,6 +14,8 @@ pub struct VideoObject {
     #[property(name = "id", get, set, type = String, member = id)]
     #[property(name = "thumbnail", get, set, type = String, member = thumbnail)]
     #[property(name = "description", get, set, type = String, member = description)]
+    #[property(name = "published-at", get, set, type = String, member = published_at)]
+    #[property(name = "channel-title", get, set, type = String, member = channel_title)]
     pub data: RefCell<VideoData>,
 }
 

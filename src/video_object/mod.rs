@@ -17,6 +17,8 @@ impl VideoObject {
             .property("id", data.id)
             .property("thumbnail", data.thumbnail)
             .property("description", data.description)
+            .property("channel-title", data.channel_title)
+            .property("published-at", data.published_at)
             .build()
     }
 }
@@ -29,8 +31,10 @@ impl Default for VideoObject {
 
 #[derive(Default, Debug)]
 pub struct VideoData {
-    pub title: String,
-    pub thumbnail: String,
-    pub description: String,
     pub id: String,
+    pub title: String,
+    pub description: String,
+    pub thumbnail: String,
+    pub channel_title: String,
+    pub published_at: String,
 }

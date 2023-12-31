@@ -21,10 +21,13 @@ struct VideoId {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct VideoSnippet {
     title: String,
     description: String,
     thumbnails: VideoThumbnails,
+    published_at: String,
+    channel_title: String,
 }
 
 #[derive(Deserialize)]
@@ -38,14 +41,16 @@ struct VideoThumbnail {
 }
 
 impl From<VideoItem> for VideoData {
-    fn from(value: VideoItem) -> Self {
-        let title = decode_html_entities(&value.snippet.title).to_string();
+    fn from(video: VideoItem) -> Self {
+        let title = decode_html_entities(&video.snippet.title).to_string();
 
         Self {
             title,
-            thumbnail: value.snippet.thumbnails.high.url,
-            description: value.snippet.description,
-            id: value.id.video_id,
+            thumbnail: video.snippet.thumbnails.high.url,
+            description: video.snippet.description,
+            id: video.id.video_id,
+            channel_title: video.snippet.channel_title,
+            published_at: video.snippet.published_at,
         }
     }
 }

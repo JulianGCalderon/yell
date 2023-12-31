@@ -11,3 +11,7 @@ Para ejecutarlo, es necesario tener instalado `cargo` y `GTK4`, versión 4.6 o s
 ```bash
 $ cargo run
 ```
+
+## Clave de API
+
+Para funcionar, necesita de una clave de API de YouTube que se proporciona a través de una variable de entorno de nombre `API_KEY`. También se puede agregar un archivo `.env` en el directorio raiz del proyecto que contenga dicha clave.

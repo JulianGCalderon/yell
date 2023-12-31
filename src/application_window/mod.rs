@@ -203,13 +203,13 @@ impl ApplicationWindow {
         let (complete_sender, mut complete_receiver) = channel(1);
         let (abort_sender, mut abort_receiver) = channel(1);
 
-        let callback = Callback::new();
-        let callback = callback.connect_on_progress_sender(progress_sender, true);
-
         download_dialog.connect_response(move |self_, _| {
             abort_sender.blocking_send(()).ok();
             self_.destroy();
         });
+
+        let callback = Callback::new();
+        let callback = callback.connect_on_progress_sender(progress_sender, true);
 
         let client = self.client();
         let path_clone = path.clone();
@@ -222,7 +222,7 @@ impl ApplicationWindow {
             tokio::select! {
                 Some(progress) = progress_receiver.recv() => {
                     let CallbackArguments { current_chunk, content_length } = progress;
-                    let Some(content_length) = content_length else { return };
+                    let Some(content_length) = content_length else { continue };
                     let fraction = current_chunk as f64 / content_length as f64;
 
                     progress_bar.set_fraction(fraction);
@@ -231,7 +231,10 @@ impl ApplicationWindow {
                     download_dialog.destroy();
                     match complete {
                         Ok(_) => self.open_download_finish_dialog(),
-                        Err(_) => self.open_download_error_dialog(),
+                        Err(err) => {
+                            eprintln!("Could not finish download, with error: {:?}", err);
+                            self.open_download_error_dialog();
+                        },
                     }
                     return;
                 }

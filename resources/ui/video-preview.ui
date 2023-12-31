@@ -1,0 +1,15 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="YellVideoPreview" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkPicture" id="thumbnail">
+        <property name="width-request">480</property>
+        <property name="height-request">360</property>
+        <property name="hexpand">false</property>
+        <property name="vexpand">false</property>
+      </object>
+    </child>
+  </template>
+</interface>

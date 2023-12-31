@@ -23,6 +23,18 @@ struct VideoId {
 #[derive(Deserialize)]
 struct VideoSnippet {
     title: String,
+    description: String,
+    thumbnails: VideoThumbnails,
+}
+
+#[derive(Deserialize)]
+struct VideoThumbnails {
+    high: VideoThumbnail,
+}
+
+#[derive(Deserialize, Debug, Default)]
+struct VideoThumbnail {
+    url: String,
 }
 
 impl From<VideoItem> for VideoData {
@@ -31,6 +43,8 @@ impl From<VideoItem> for VideoData {
 
         Self {
             title,
+            thumbnail: value.snippet.thumbnails.high.url,
+            description: value.snippet.description,
             id: value.id.video_id,
         }
     }

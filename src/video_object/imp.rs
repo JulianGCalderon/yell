@@ -12,6 +12,8 @@ use super::VideoData;
 pub struct VideoObject {
     #[property(name = "title", get, set, type = String, member = title)]
     #[property(name = "id", get, set, type = String, member = id)]
+    #[property(name = "thumbnail", get, set, type = String, member = thumbnail)]
+    #[property(name = "description", get, set, type = String, member = description)]
     pub data: RefCell<VideoData>,
 }
 

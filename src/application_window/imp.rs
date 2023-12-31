@@ -7,6 +7,7 @@ use gtk::subclass::prelude::*;
 use gtk::{Button, Entry, ListView};
 
 use crate::client::Client;
+use crate::video_preview::VideoPreview;
 
 // #[template(resource = "/juliangcalderon/yell/ui/window.ui/")]
 // Object holding the state
@@ -21,6 +22,8 @@ pub struct ApplicationWindow {
     pub download_button: TemplateChild<Button>,
     #[template_child]
     pub results_list: TemplateChild<ListView>,
+    #[template_child]
+    pub preview: TemplateChild<VideoPreview>,
 
     pub results: RefCell<Option<ListStore>>,
     pub client: RefCell<Client>,
@@ -33,6 +36,8 @@ impl ObjectSubclass for ApplicationWindow {
     type ParentType = gtk::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
+        // VideoPreview::ensure_type();
+
         klass.bind_template();
         klass.bind_template_instance_callbacks();
     }
@@ -48,7 +53,7 @@ impl ObjectImpl for ApplicationWindow {
 
         let obj = self.obj();
 
-        obj.setup_list();
+        obj.setup();
     }
 }
 

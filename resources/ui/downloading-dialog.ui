@@ -1,8 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <object class="GtkMessageDialog">
-    <property name="buttons">cancel</property>
-    <property name="message-type">info</property>
-    <property name="text">Downloading video...</property>
+  <object class="GtkDialog">
+    <property name="title"></property>
+    <property name="width-request">300</property>
+    <child internal-child="content_area">
+      <object class="GtkBox">
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Download in progress</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkProgressBar" id="progress_bar">
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkButton" id="button_cancel">
+            <property name="label">Cancel</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="cancel" default="true">button_cancel</action-widget>
+    </action-widgets>
   </object>
 </interface>

@@ -6,6 +6,7 @@
     <file compressed="true" preprocess="xml-stripblanks">ui/downloading-dialog.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/download-finish-dialog.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/download-error-dialog.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/search-error-dialog.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/file-chooser-dialog.ui</file>
   </gresource>
 </gresources>

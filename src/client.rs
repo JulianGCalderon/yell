@@ -22,35 +22,35 @@ impl Client {
     }
 
     pub async fn query(&self, q: String) -> BoxSendResult<VideoResponse> {
-        // let key = dotenv::var("API_KEY").expect("Could not get API key from env. variable");
-        //
-        // let max_results = MAX_RESULTS.to_string();
-        //
-        // let response = self
-        //     .client
-        //     .get(SEARCH_URL)
-        //     .query(&[
-        //         ("part", REQUEST_PART),
-        //         ("type", REQUEST_TYPE),
-        //         ("max_results", &max_results),
-        //         ("key", &key),
-        //         ("q", &q),
-        //     ])
-        //     .header("key", key)
-        //     .send()
-        //     .await?
-        //     .text()
-        //     .await?;
+        let key = dotenv::var("API_KEY").expect("Could not get API key from env. variable");
 
-        let _ = (
-            REQUEST_PART,
-            REQUEST_TYPE,
-            MAX_RESULTS,
-            SEARCH_URL,
-            q,
-            &self.client,
-        );
-        let response = fs::read_to_string("target/demo.json").unwrap();
+        let max_results = MAX_RESULTS.to_string();
+
+        let response = self
+            .client
+            .get(SEARCH_URL)
+            .query(&[
+                ("part", REQUEST_PART),
+                ("type", REQUEST_TYPE),
+                ("max_results", &max_results),
+                ("key", &key),
+                ("q", &q),
+            ])
+            .header("key", key)
+            .send()
+            .await?
+            .text()
+            .await?;
+
+        // let _ = (
+        //     REQUEST_PART,
+        //     REQUEST_TYPE,
+        //     MAX_RESULTS,
+        //     SEARCH_URL,
+        //     q,
+        //     &self.client,
+        // );
+        // let response = fs::read_to_string("target/demo.json").unwrap();
 
         Ok(serde_json::from_str::<VideoResponse>(&response)?)
     }

@@ -33,6 +33,29 @@ impl ApplicationWindow {
         Object::builder().property("application", app).build()
     }
 
+    pub fn setup(&self) {
+        self.setup_list();
+    }
+
+    fn setup_list(&self) {
+        let model = ListStore::new::<VideoObject>();
+        self.imp().results.replace(Some(model));
+
+        let selection_model = SingleSelection::new(Some(self.results()));
+        selection_model.connect_selected_item_notify(clone!(@weak self as this => move |_| {
+            this.handle_select();
+        }));
+
+        self.imp().results_list.set_model(Some(&selection_model));
+
+        let factory = BuilderListItemFactory::from_resource(
+            None::<&BuilderScope>,
+            &format!("{}ui/video-item.ui", config::APP_IDPATH),
+        );
+
+        self.imp().results_list.set_factory(Some(&factory));
+    }
+
     fn set_results(&self, videos: Vec<VideoObject>) {
         self.results().remove_all();
         self.results().extend_from_slice(&videos);
@@ -51,21 +74,6 @@ impl ApplicationWindow {
             .item(selected_index)?
             .downcast::<VideoObject>()
             .ok()
-    }
-
-    fn setup_list(&self) {
-        let model = ListStore::new::<VideoObject>();
-        self.imp().results.replace(Some(model));
-
-        let selection_model = SingleSelection::new(Some(self.results()));
-        self.imp().results_list.set_model(Some(&selection_model));
-
-        let factory = BuilderListItemFactory::from_resource(
-            None::<&BuilderScope>,
-            &format!("{}ui/video-item.ui", config::APP_IDPATH),
-        );
-
-        self.imp().results_list.set_factory(Some(&factory));
     }
 
     fn results(&self) -> ListStore {
@@ -282,5 +290,14 @@ impl ApplicationWindow {
         });
 
         error_dialog.show();
+    }
+
+    fn handle_select(&self) {
+        let Some(selected) = self.get_selected() else {
+            return;
+        };
+
+        self.imp().preview.set_visible(true);
+        self.imp().preview.set_video(selected);
     }
 }

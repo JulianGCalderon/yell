@@ -1,0 +1,35 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="YellVideoPreview" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkLabel" id="title">
+        <property name="wrap-mode">word</property>
+        <property name="wrap">yes</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkPicture" id="thumbnail">
+        <property name="width-request">480</property>
+        <property name="height-request">360</property>
+        <property name="hexpand">false</property>
+        <property name="vexpand">false</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel" id="channel_title">
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel" id="published_at">
+      </object>
+    </child>
+    <child>
+      <object class="GtkTextView" id="description">
+        <property name="editable">false</property>
+        <property name="wrap-mode">word</property>
+      </object>
+    </child>
+  </template>
+</interface>

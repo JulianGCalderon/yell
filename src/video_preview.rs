@@ -87,11 +87,7 @@ impl VideoPreview {
         video_expresion
             .chain_property::<VideoObject>("thumbnail")
             .chain_closure::<File>(closure!(|_: Option<Object>, url: &str| {
-                if url.is_empty() {
-                    File::for_path("resources/images/default-image.webp")
-                } else {
-                    File::for_uri(&url)
-                }
+                File::for_uri(&url)
             }))
             .bind(&picture, "file", Widget::NONE);
 

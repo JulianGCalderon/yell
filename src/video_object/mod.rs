@@ -8,10 +8,10 @@ use gtk::glib;
 mod imp {
     use std::cell::RefCell;
 
+    use adw::prelude::*;
+    use adw::subclass::prelude::*;
     use glib::Properties;
     use gtk::glib;
-    use gtk::prelude::*;
-    use gtk::subclass::prelude::*;
 
     #[derive(Properties, Default)]
     #[properties(wrapper_type = super::VideoObject)]

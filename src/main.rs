@@ -7,10 +7,10 @@ mod video_preview;
 
 use std::error::Error;
 
+use adw::prelude::*;
 use application::Application;
 use dotenv::dotenv;
 use gtk::glib::once_cell::sync::Lazy;
-use gtk::prelude::*;
 use gtk::{gio, glib};
 use tokio::runtime::Runtime;
 

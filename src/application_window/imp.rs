@@ -1,9 +1,10 @@
 use std::cell::RefCell;
 
+use adw::subclass::prelude::*;
+use adw::Leaflet;
 use glib::subclass::InitializingObject;
 use gtk::gio::ListStore;
 use gtk::glib;
-use gtk::subclass::prelude::*;
 use gtk::{Button, Entry, ListView};
 
 use crate::client::Client;
@@ -24,6 +25,8 @@ pub struct ApplicationWindow {
     pub results_list: TemplateChild<ListView>,
     #[template_child]
     pub preview: TemplateChild<VideoPreview>,
+    #[template_child]
+    pub leaflet: TemplateChild<Leaflet>,
 
     pub results: RefCell<Option<ListStore>>,
     pub client: RefCell<Client>,
@@ -33,7 +36,7 @@ pub struct ApplicationWindow {
 impl ObjectSubclass for ApplicationWindow {
     const NAME: &'static str = "YellApplicationWindow";
     type Type = super::ApplicationWindow;
-    type ParentType = gtk::ApplicationWindow;
+    type ParentType = adw::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
         klass.bind_template();
@@ -58,3 +61,4 @@ impl ObjectImpl for ApplicationWindow {
 impl WidgetImpl for ApplicationWindow {}
 impl WindowImpl for ApplicationWindow {}
 impl ApplicationWindowImpl for ApplicationWindow {}
+impl AdwApplicationWindowImpl for ApplicationWindow {}

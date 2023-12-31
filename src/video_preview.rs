@@ -1,7 +1,7 @@
+use adw::prelude::*;
 use gtk::gio::File;
-use gtk::glib::subclass::types::ObjectSubclassIsExt;
-use gtk::glib::{self, closure, Object};
-use gtk::prelude::{GObjectPropertyExpressionExt, TextViewExt};
+use gtk::glib;
+use gtk::glib::{closure, subclass::types::ObjectSubclassIsExt, Object};
 use gtk::Widget;
 
 use crate::video_object::VideoObject;
@@ -9,11 +9,11 @@ use crate::video_object::VideoObject;
 mod imp {
     use std::cell::RefCell;
 
+    use adw::prelude::*;
+    use adw::subclass::prelude::*;
     use glib::subclass::InitializingObject;
     use gtk::glib::Properties;
-    use gtk::subclass::prelude::*;
-    use gtk::{glib, Picture, TextView};
-    use gtk::{prelude::*, Label};
+    use gtk::{glib, Label, Picture, TextView};
 
     use crate::video_object::VideoObject;
 

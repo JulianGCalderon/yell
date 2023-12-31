@@ -10,11 +10,14 @@
       </object>
     </child>
     <child>
-      <object class="GtkPicture" id="thumbnail">
-        <property name="width-request">480</property>
-        <property name="height-request">360</property>
-        <property name="hexpand">false</property>
-        <property name="vexpand">false</property>
+      <object class="AdwClamp">
+        <property name="maximum-size">480</property>
+        <child>
+          <object class="GtkPicture" id="thumbnail">
+            <property name="width-request">240</property>
+            <property name="hexpand">yes</property>
+          </object>
+        </child>
       </object>
     </child>
     <child>

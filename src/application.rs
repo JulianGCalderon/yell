@@ -2,9 +2,10 @@ use crate::config;
 use gtk::{gio, glib};
 
 mod imp {
+    use adw::prelude::*;
+    use adw::subclass::application::AdwApplicationImpl;
+    use adw::subclass::prelude::*;
     use gtk::glib::{self, Cast};
-    use gtk::prelude::*;
-    use gtk::subclass::prelude::*;
 
     use crate::application_window::ApplicationWindow;
 
@@ -15,7 +16,7 @@ mod imp {
     impl ObjectSubclass for Application {
         const NAME: &'static str = "YellApplication";
         type Type = super::Application;
-        type ParentType = gtk::Application;
+        type ParentType = adw::Application;
     }
 
     impl ObjectImpl for Application {}
@@ -30,11 +31,12 @@ mod imp {
     }
 
     impl GtkApplicationImpl for Application {}
+    impl AdwApplicationImpl for Application {}
 }
 
 glib::wrapper! {
     pub struct Application(ObjectSubclass<imp::Application>)
-        @extends gio::Application, gtk::Application,
+        @extends gio::Application, gtk::Application, adw::Application,
         @implements gio::ActionGroup, gio::ActionMap;
 }
 

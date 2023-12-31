@@ -36,8 +36,6 @@ impl ObjectSubclass for ApplicationWindow {
     type ParentType = gtk::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
-        // VideoPreview::ensure_type();
-
         klass.bind_template();
         klass.bind_template_instance_callbacks();
     }

@@ -1,40 +1,51 @@
 mod deserialize;
-mod imp;
 
 pub use deserialize::VideoResponse;
 
 use glib::Object;
 use gtk::glib;
 
-glib::wrapper! {
-    pub struct VideoObject(ObjectSubclass<imp::VideoObject>);
+mod imp {
+    use std::cell::RefCell;
+
+    use glib::Properties;
+    use gtk::glib;
+    use gtk::prelude::*;
+    use gtk::subclass::prelude::*;
+
+    #[derive(Properties, Default)]
+    #[properties(wrapper_type = super::VideoObject)]
+    pub struct VideoObject {
+        #[property(get, set)]
+        pub id: RefCell<String>,
+        #[property(get, set)]
+        pub title: RefCell<String>,
+        #[property(get, set)]
+        pub description: RefCell<String>,
+        #[property(get, set)]
+        pub thumbnail: RefCell<String>,
+        #[property(get, set)]
+        pub channel_title: RefCell<String>,
+        #[property(get, set)]
+        pub published_at: RefCell<String>,
+    }
+
+    #[glib::object_subclass]
+    impl ObjectSubclass for VideoObject {
+        const NAME: &'static str = "YellVideoObject";
+        type Type = super::VideoObject;
+    }
+
+    #[glib::derived_properties]
+    impl ObjectImpl for VideoObject {}
 }
 
-impl VideoObject {
-    pub fn new(data: VideoData) -> Self {
-        Object::builder()
-            .property("title", data.title)
-            .property("id", data.id)
-            .property("thumbnail", data.thumbnail)
-            .property("description", data.description)
-            .property("channel-title", data.channel_title)
-            .property("published-at", data.published_at)
-            .build()
-    }
+glib::wrapper! {
+    pub struct VideoObject(ObjectSubclass<imp::VideoObject>);
 }
 
 impl Default for VideoObject {
     fn default() -> Self {
         Object::builder().build()
     }
-}
-
-#[derive(Default, Debug)]
-pub struct VideoData {
-    pub id: String,
-    pub title: String,
-    pub description: String,
-    pub thumbnail: String,
-    pub channel_title: String,
-    pub published_at: String,
 }

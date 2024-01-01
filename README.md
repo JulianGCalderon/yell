@@ -1,4 +1,4 @@
-# Youtube Downloader
+# Yell
 
 Interfaz desarrollada en Rust con GTK4 que busca y descarga videos de youtube. Para hacerlo, necesitará de una clave de su API.
 

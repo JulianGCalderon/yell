@@ -10,8 +10,6 @@ use gtk::{Button, Entry, ListView};
 use crate::client::Client;
 use crate::video_previewer::VideoPreviewer;
 
-// #[template(resource = "/juliangcalderon/yell/ui/window.ui/")]
-// Object holding the state
 #[derive(gtk::CompositeTemplate, Default)]
 #[template(resource = "/com/github/juliangcalderon/yell/ui/application-window.ui")]
 pub struct ApplicationWindow {

@@ -4,7 +4,6 @@
     <file compressed="true" preprocess="xml-stripblanks">ui/application-window.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/video-item.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/video-previewer.ui</file>
-    <file compressed="true" preprocess="xml-stripblanks">ui/video-searcher.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/downloading-dialog.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/download-finish-dialog.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/download-error-dialog.ui</file>

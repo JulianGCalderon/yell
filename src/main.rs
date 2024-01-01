@@ -4,7 +4,6 @@ mod client;
 mod config;
 mod video_object;
 mod video_previewer;
-mod video_searcher;
 
 use std::error::Error;
 

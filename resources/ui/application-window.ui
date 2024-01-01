@@ -60,7 +60,6 @@
             </child>
           </object>
         </child>
-        <!-- ... -->
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
@@ -82,7 +81,7 @@
                 <property name="vexpand">true</property>
                 <property name="hscrollbar-policy">never</property>
                 <child>
-                  <object class="YellVideoPreview" id="preview">
+                  <object class="YellVideoPreviewer" id="preview">
                   </object>
                 </child>
               </object>

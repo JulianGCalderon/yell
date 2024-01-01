@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <object class="GtkMessageDialog">
+    <property name="title">Success</property>
     <property name="width-request">300</property>
     <property name="buttons">close</property>
     <property name="message-type">info</property>
-    <property name="text">Downloaded succesfully</property>
+    <property name="text">Video downloaded succesfully</property>
   </object>
 </interface>

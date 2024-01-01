@@ -3,7 +3,8 @@ mod application_window;
 mod client;
 mod config;
 mod video_object;
-mod video_preview;
+mod video_previewer;
+mod video_searcher;
 
 use std::error::Error;
 

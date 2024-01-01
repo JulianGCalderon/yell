@@ -1,64 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <template class="YellApplicationWindow" parent="GtkApplicationWindow">
+  <template class="YellApplicationWindow" parent="AdwApplicationWindow">
     <property name="title">Yell</property>
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">horizontal</property>
+    <property name="content">
+      <object class="AdwLeaflet" id="leaflet">
+        <property name="homogeneous">false</property>
+        <property name="can-unfold">false</property>
+        <property name="fold-threshold-policy">minimum</property>
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
             <child>
+              <object class="AdwHeaderBar">
+                <binding name="show-end-title-buttons">
+                  <lookup name="folded">leaflet</lookup>
+                </binding>
+              </object>
+            </child>
+            <child>
               <object class="GtkBox">
-                <property name="orientation">horizontal</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkEntry" id="search_entry">
-                    <property name="hexpand">true</property>
-                    <property name="placeholder-text">search for...</property>
-                    <signal name="activate" handler="handle_search" swapped="true" />
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <child>
+                      <object class="GtkEntry" id="search_entry">
+                        <property name="hexpand">true</property>
+                        <property name="placeholder-text">search for...</property>
+                        <signal name="activate" handler="handle_search" swapped="true" />
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="search_button">
+                        <property name="width-request">100</property>
+                        <property name="label">Search!</property>
+                        <signal name="clicked" handler="handle_search" swapped="true" />
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="search_button">
-                    <property name="width-request">100</property>
-                    <property name="label">Search!</property>
-                    <signal name="clicked" handler="handle_search" swapped="true" />
+                  <object class="GtkScrolledWindow">
+                    <property name="min-content-height">360</property>
+                    <property name="width-request">480</property>
+                    <property name="vexpand">true</property>
+                    <child>
+                      <object class="GtkListView" id="results_list">
+                        <property name="valign">start</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkScrolledWindow">
-                <property name="min-content-height">360</property>
-                <property name="width-request">480</property>
-                <property name="vexpand">true</property>
                 <child>
-                  <object class="GtkListView" id="results_list">
-                    <property name="valign">start</property>
+                  <object class="GtkButton" id="download_button">
+                    <property name="label">Download</property>
+                    <signal name="clicked" handler="handle_download" swapped="true" />
                   </object>
                 </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="download_button">
-                <property name="label">Download</property>
-                <signal name="clicked" handler="handle_download" swapped="true" />
               </object>
             </child>
           </object>
         </child>
         <child>
-          <object class="GtkScrolledWindow">
-            <property name="vexpand">true</property>
-            <property name="hscrollbar-policy">never</property>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="hexpand">True</property>
             <child>
-              <object class="YellVideoPreview" id="preview">
-                <property name="visible">false</property>
+              <object class="AdwHeaderBar">
+                <property name="title-widget">
+                  <object class="AdwWindowTitle">
+                    <property name="title" translatable="yes">Video Preview</property>
+                  </object>
+                </property>
+                <binding name="show-start-title-buttons">
+                  <lookup name="folded">leaflet</lookup>
+                </binding>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="vexpand">true</property>
+                <property name="hscrollbar-policy">never</property>
+                <child>
+                  <object class="YellVideoPreviewer" id="preview">
+                  </object>
+                </child>
               </object>
             </child>
           </object>
         </child>
       </object>
-    </child>
+    </property>
   </template>
 </interface>

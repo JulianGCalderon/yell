@@ -1,10 +1,11 @@
 mod callbacks;
 mod imp;
 
+use adw::prelude::*;
 use gtk::glib::clone;
 use gtk::glib::subclass::types::ObjectSubclassIsExt;
+use gtk::Builder;
 use gtk::{gio::ListStore, MessageDialog};
-use gtk::{prelude::*, Builder};
 
 use crate::client::Client;
 use crate::config;
@@ -14,7 +15,7 @@ use gtk::{gio, glib, Application, BuilderListItemFactory, BuilderScope, SingleSe
 
 glib::wrapper! {
     pub struct ApplicationWindow(ObjectSubclass<imp::ApplicationWindow>)
-        @extends gtk::ApplicationWindow, gtk::Window, gtk::Widget,
+        @extends gtk::ApplicationWindow, gtk::Window, gtk::Widget, adw::ApplicationWindow,
         @implements gio::ActionGroup, gio::ActionMap, gtk::Accessible, gtk::Buildable,
                     gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }

@@ -1,10 +1,11 @@
 use std::fs;
 use std::path::PathBuf;
 
+use adw::prelude::*;
 use gtk::glib;
 use gtk::glib::subclass::types::ObjectSubclassIsExt;
 use gtk::glib::{clone, spawn_future_local};
-use gtk::{prelude::*, ResponseType};
+use gtk::ResponseType;
 use rustube::{Callback, CallbackArguments};
 use tokio::sync::mpsc::channel;
 
@@ -185,7 +186,7 @@ impl ApplicationWindow {
             return;
         };
 
-        self.imp().preview.set_visible(true);
+        self.imp().leaflet.set_can_unfold(true);
         self.imp().preview.set_video(selected);
     }
 }

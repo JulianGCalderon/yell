@@ -50,7 +50,7 @@ impl Client {
         //     q,
         //     &self.client,
         // );
-        // let response = fs::read_to_string("target/demo.json").unwrap();
+        // let response = std::fs::read_to_string("target/demo.json").unwrap();
 
         Ok(serde_json::from_str::<VideoResponse>(&response)?)
     }

@@ -3,14 +3,14 @@ mod application_window;
 mod client;
 mod config;
 mod video_object;
-mod video_preview;
+mod video_previewer;
 
 use std::error::Error;
 
+use adw::prelude::*;
 use application::Application;
 use dotenv::dotenv;
 use gtk::glib::once_cell::sync::Lazy;
-use gtk::prelude::*;
 use gtk::{gio, glib};
 use tokio::runtime::Runtime;
 

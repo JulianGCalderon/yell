@@ -1,16 +1,15 @@
 use std::cell::RefCell;
 
+use adw::subclass::prelude::*;
+use adw::Leaflet;
 use glib::subclass::InitializingObject;
 use gtk::gio::ListStore;
 use gtk::glib;
-use gtk::subclass::prelude::*;
 use gtk::{Button, Entry, ListView};
 
 use crate::client::Client;
-use crate::video_preview::VideoPreview;
+use crate::video_previewer::VideoPreviewer;
 
-// #[template(resource = "/juliangcalderon/yell/ui/window.ui/")]
-// Object holding the state
 #[derive(gtk::CompositeTemplate, Default)]
 #[template(resource = "/com/github/juliangcalderon/yell/ui/application-window.ui")]
 pub struct ApplicationWindow {
@@ -23,7 +22,9 @@ pub struct ApplicationWindow {
     #[template_child]
     pub results_list: TemplateChild<ListView>,
     #[template_child]
-    pub preview: TemplateChild<VideoPreview>,
+    pub preview: TemplateChild<VideoPreviewer>,
+    #[template_child]
+    pub leaflet: TemplateChild<Leaflet>,
 
     pub results: RefCell<Option<ListStore>>,
     pub client: RefCell<Client>,
@@ -33,7 +34,7 @@ pub struct ApplicationWindow {
 impl ObjectSubclass for ApplicationWindow {
     const NAME: &'static str = "YellApplicationWindow";
     type Type = super::ApplicationWindow;
-    type ParentType = gtk::ApplicationWindow;
+    type ParentType = adw::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
         klass.bind_template();
@@ -58,3 +59,4 @@ impl ObjectImpl for ApplicationWindow {
 impl WidgetImpl for ApplicationWindow {}
 impl WindowImpl for ApplicationWindow {}
 impl ApplicationWindowImpl for ApplicationWindow {}
+impl AdwApplicationWindowImpl for ApplicationWindow {}

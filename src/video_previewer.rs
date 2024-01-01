@@ -1,7 +1,7 @@
+use adw::prelude::*;
 use gtk::gio::File;
-use gtk::glib::subclass::types::ObjectSubclassIsExt;
-use gtk::glib::{self, closure, Object};
-use gtk::prelude::{GObjectPropertyExpressionExt, TextViewExt};
+use gtk::glib;
+use gtk::glib::{closure, subclass::types::ObjectSubclassIsExt, Object};
 use gtk::Widget;
 
 use crate::video_object::VideoObject;
@@ -9,18 +9,18 @@ use crate::video_object::VideoObject;
 mod imp {
     use std::cell::RefCell;
 
+    use adw::prelude::*;
+    use adw::subclass::prelude::*;
     use glib::subclass::InitializingObject;
     use gtk::glib::Properties;
-    use gtk::subclass::prelude::*;
-    use gtk::{glib, Picture, TextView};
-    use gtk::{prelude::*, Label};
+    use gtk::{glib, Label, Picture, TextView};
 
     use crate::video_object::VideoObject;
 
     #[derive(Properties, gtk::CompositeTemplate, Default)]
-    #[properties(wrapper_type = super::VideoPreview)]
-    #[template(resource = "/com/github/juliangcalderon/yell/ui/video-preview.ui")]
-    pub struct VideoPreview {
+    #[properties(wrapper_type = super::VideoPreviewer)]
+    #[template(resource = "/com/github/juliangcalderon/yell/ui/video-previewer.ui")]
+    pub struct VideoPreviewer {
         #[template_child]
         pub thumbnail: TemplateChild<Picture>,
         #[template_child]
@@ -37,9 +37,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for VideoPreview {
-        const NAME: &'static str = "YellVideoPreview";
-        type Type = super::VideoPreview;
+    impl ObjectSubclass for VideoPreviewer {
+        const NAME: &'static str = "YellVideoPreviewer";
+        type Type = super::VideoPreviewer;
         type ParentType = gtk::Box;
 
         fn class_init(klass: &mut Self::Class) {
@@ -52,24 +52,24 @@ mod imp {
     }
 
     #[glib::derived_properties]
-    impl ObjectImpl for VideoPreview {
+    impl ObjectImpl for VideoPreviewer {
         fn constructed(&self) {
             self.parent_constructed();
             self.obj().setup();
         }
     }
 
-    impl WidgetImpl for VideoPreview {}
-    impl BoxImpl for VideoPreview {}
+    impl WidgetImpl for VideoPreviewer {}
+    impl BoxImpl for VideoPreviewer {}
 }
 
 glib::wrapper! {
-    pub struct VideoPreview(ObjectSubclass<imp::VideoPreview>)
+    pub struct VideoPreviewer(ObjectSubclass<imp::VideoPreviewer>)
         @extends gtk::Widget, gtk::Box,
         @implements gtk::Buildable, gtk::Orientable;
 }
 
-impl VideoPreview {
+impl VideoPreviewer {
     fn setup(&self) {
         let video_expresion = self.property_expression("video");
 

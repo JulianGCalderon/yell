@@ -4,6 +4,7 @@
     <property name="title">Yell</property>
     <property name="content">
       <object class="AdwLeaflet" id="leaflet">
+        <property name="homogeneous">false</property>
         <property name="can-unfold">false</property>
         <property name="fold-threshold-policy">minimum</property>
         <child>

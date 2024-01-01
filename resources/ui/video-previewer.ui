@@ -7,6 +7,17 @@
       <object class="GtkLabel" id="title">
         <property name="wrap-mode">word</property>
         <property name="wrap">yes</property>
+        <style>
+          <class name="video-title" />
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel" id="channel_title">
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel" id="published_at">
       </object>
     </child>
     <child>
@@ -21,16 +32,11 @@
       </object>
     </child>
     <child>
-      <object class="GtkLabel" id="channel_title">
-      </object>
-    </child>
-    <child>
-      <object class="GtkLabel" id="published_at">
-      </object>
-    </child>
-    <child>
       <object class="GtkTextView" id="description">
+        <property name="vexpand">true</property>
+        <property name="justification">center</property>
         <property name="editable">false</property>
+        <property name="cursor-visible">false</property>
         <property name="wrap-mode">word</property>
       </object>
     </child>

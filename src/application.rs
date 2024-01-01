@@ -5,7 +5,11 @@ mod imp {
     use adw::prelude::*;
     use adw::subclass::application::AdwApplicationImpl;
     use adw::subclass::prelude::*;
-    use gtk::glib::{self, Cast};
+    use gtk::{
+        gdk::Display,
+        glib::{self, Cast},
+        CssProvider,
+    };
 
     use crate::application_window::ApplicationWindow;
 
@@ -27,6 +31,20 @@ mod imp {
 
             let application_window = ApplicationWindow::new(self.obj().upcast_ref());
             application_window.present();
+        }
+
+        fn startup(&self) {
+            self.parent_startup();
+
+            let provider = CssProvider::new();
+            provider.load_from_data(include_str!("../resources/style.css"));
+
+            // Add the provider to the default screen
+            gtk::style_context_add_provider_for_display(
+                &Display::default().expect("Could not connect to a display."),
+                &provider,
+                gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+            );
         }
     }
 

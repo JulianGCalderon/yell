@@ -1,0 +1,26 @@
+button.text-button, entry {
+	margin: 10px;
+}
+
+listview row {
+	padding: 10px;
+}
+
+label.video-title {
+	font-size: 22px;
+	margin: 14px;
+}
+
+textview {
+	margin: 10px;
+	font-size: 18px;
+	background: 0;
+}
+
+progressbar {
+	margin: 10px;
+}
+
+.dialog label {
+	margin: 10px;
+}
